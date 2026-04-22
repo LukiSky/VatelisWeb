@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════
+   VATELIS — Multiversal Design System
+   ═══════════════════════════════════════════ */
+
+:root {
+	--void-black: #000000;
+	--mascot-red: #B53B44;
+	--mascot-blue: #3B5A9D;
+	--mascot-glow: #FFD700;
+	--multiverse-purple: #8A2BE2;
+	--fracture-cyan: #00e5ff;
+	--text-primary: #FFFFFF;
+	--text-muted: rgba(255, 255, 255, 0.5);
+	--glass: rgba(255, 255, 255, 0.04);
+	--glass-border: rgba(255, 255, 255, 0.08);
+	--glow-gold: 0 0 20px rgba(255, 215, 0, 0.4), 0 0 60px rgba(255, 215, 0, 0.1);
+	--glow-purple: 0 0 20px rgba(138, 43, 226, 0.4), 0 0 60px rgba(138, 43, 226, 0.1);
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html, body {
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	background: var(--void-black);
+	color: var(--text-primary);
+	font-family: 'Outfit', system-ui, sans-serif;
+	cursor: crosshair;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Halftone overlay — Spider-Verse texture */
+body::after {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 9999;
+	opacity: 0.025;
+	background-image: radial-gradient(circle, #fff 0.5px, transparent 0.5px);
+	background-size: 3px 3px;
+	mix-blend-mode: overlay;
+}
+
+/* Stepped animation keyframes (Spider-Verse 12fps feel) */
+@keyframes float-breathe {
+	0%, 100% { transform: translateY(0px) scale(1); }
+	50% { transform: translateY(-8px) scale(1.02); }
+}
+
+@keyframes pulse-glow {
+	0%, 100% { opacity: 0.6; }
+	50% { opacity: 1; }
+}
+
+@keyframes drift {
+	0% { transform: translate(0, 0) rotate(0deg); }
+	33% { transform: translate(3px, -5px) rotate(1deg); }
+	66% { transform: translate(-2px, 3px) rotate(-0.5deg); }
+	100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Page title styling for placeholder pages */
+.page-title {
+	font-size: clamp(3rem, 8vw, 7rem);
+	font-weight: 900;
+	letter-spacing: -0.02em;
+	text-transform: uppercase;
+	background: linear-gradient(135deg, var(--text-primary) 0%, var(--multiverse-purple) 50%, var(--mascot-glow) 100%);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-shadow: none;
+	filter: drop-shadow(0 0 40px rgba(138, 43, 226, 0.3));
+}
+
+.page-subtitle {
+	font-size: 1.1rem;
+	font-weight: 300;
+	color: var(--text-muted);
+	margin-top: 1rem;
+	letter-spacing: 0.05em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--multiverse-purple); border-radius: 2px; }
