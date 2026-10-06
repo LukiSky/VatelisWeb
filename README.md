@@ -23,11 +23,16 @@ npx sv@0.15.1 create --template minimal --types ts --no-install _scaffold
 Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```sh
+# Copy .env.example to .env and set GEMINI_API_KEY to your Gemini API key.
 npm run dev
 
 # or start the server and open the app in a new browser tab
 npm run dev -- --open
 ```
+
+The chat endpoint uses Gemini server-side through `GEMINI_API_KEY`; the key is never sent to the browser. `GEMINI_MODEL` can be changed to another supported Gemini model.
+
+Keep the real key in `.env` or your hosting provider's server-side environment variables. Do not put it in `.env.example`, frontend code, or source control. If a real key has been exposed publicly, revoke it and create a replacement in Google AI Studio.
 
 ## Building
 

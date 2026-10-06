@@ -16,6 +16,8 @@
 	}
 
 	let inputText = $state('');
+	let isSending = $state(false);
+	let errorMessage = $state('');
 	let bubbleEls: HTMLDivElement[] = $state([]);
 	let chatContainerEl: HTMLDivElement;
 	let inputAreaEl: HTMLDivElement;
@@ -28,6 +30,70 @@
 	];
 
 	let bubbles = $state<ChatBubble[]>(sampleMessages);
+
+	function addBubblePhysics(bubble: ChatBubble, index: number) {
+		const chatX = window.innerWidth * 0.82;
+		const by = window.innerHeight * 0.25 + index * 65;
+		const bx = chatX + (bubble.sender === 'user' ? 40 : -40);
+		const body = Bodies.rectangle(bx, by, 200, 45, {
+			frictionAir: 0.06,
+			restitution: 0.5,
+			mass: 0.3,
+			label: bubble.bodyId,
+			chamfer: { radius: 8 }
+		});
+		physics.addBody(bubble.bodyId, body, {
+			spring: { x: bx, y: by, stiffness: 0.025, damping: 0.15 }
+		});
+	}
+
+	async function sendMessage() {
+		const text = inputText.trim();
+		if (!text || isSending) return;
+
+		const userBubble: ChatBubble = {
+			id: crypto.randomUUID(),
+			text,
+			sender: 'user',
+			bodyId: `chat-${crypto.randomUUID()}`
+		};
+		bubbles = [...bubbles, userBubble];
+		addBubblePhysics(userBubble, bubbles.length - 1);
+		inputText = '';
+		isSending = true;
+		errorMessage = '';
+
+		try {
+			const response = await fetch('/api/chat', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					messages: bubbles.map((bubble) => ({
+						role: bubble.sender === 'bot' ? 'model' : 'user',
+						text: bubble.text
+					}))
+				})
+			});
+			const result = await response.json();
+			if (!response.ok) throw new Error(result.error ?? 'Unable to send message.');
+
+			const botBubble = {
+				id: crypto.randomUUID(),
+				text: result.reply,
+				sender: 'bot' as const,
+				bodyId: `chat-${crypto.randomUUID()}`
+			};
+			bubbles = [
+				...bubbles,
+				botBubble
+			];
+			addBubblePhysics(botBubble, bubbles.length - 1);
+		} catch (error) {
+			errorMessage = error instanceof Error ? error.message : 'Unable to send message.';
+		} finally {
+			isSending = false;
+		}
+	}
 
 	onMount(() => {
 		const w = window.innerWidth;
@@ -127,14 +193,25 @@
 				bind:value={inputText}
 				class="chat-input"
 				id="chat-input-field"
+				disabled={isSending}
+				onkeydown={(event) => event.key === 'Enter' && sendMessage()}
 			/>
 			<button class="btn-mic" aria-label="Microphone" id="btn-mic">
 				<Mic size={18} />
 			</button>
-			<button class="btn-send" aria-label="Send message" id="btn-send">
+			<button
+				class="btn-send"
+				aria-label="Send message"
+				id="btn-send"
+				disabled={isSending || !inputText.trim()}
+				onclick={sendMessage}
+			>
 				<SendHorizonal size={18} />
 			</button>
 		</div>
+		{#if errorMessage}
+			<p class="chat-error" role="alert">{errorMessage}</p>
+		{/if}
 	</div>
 </div>
 
@@ -253,6 +330,17 @@
 		color: #FFD700;
 		background: rgba(255, 215, 0, 0.12);
 		box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+	}
+
+	.btn-send:disabled {
+		opacity: 0.35;
+		cursor: not-allowed;
+	}
+
+	.chat-error {
+		margin: 8px 12px;
+		color: #ff9f9f;
+		font-size: 0.75rem;
 	}
 
 	/* Pulsing ring animation on mic */
